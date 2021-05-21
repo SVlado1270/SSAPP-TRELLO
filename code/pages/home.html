@@ -1,0 +1,83 @@
+<link rel="stylesheet" href="assets/pages/home.css">
+<webc-container controller="BoardController" class="todo-container">
+    <header>
+        <h2 style="text-align: center;">Board Template</h2>
+    </header>
+
+    <hr>
+
+        <!-- Adding items -->
+        <section class="addition">
+            <label for="@item.id">Create your TODO:</label>
+            <input data-view-model="@item" data-tag="create-todo">
+        </section>
+
+    <section class="board">
+
+        <section class="todo_column">
+            <h2 style="text-align: center;">To Do</h2>
+            <!-- Render each item from the model -->
+            <section class="items" data-for="@toDoItems" data-tag="toDoItems">
+                <div class="item">
+                    <label class="add">
+                        <input type="button" data-view-model="@checkbox">
+                    </label>
+                    <input type="text" data-view-model="@input">
+                    <label class="delete">
+                        <input type="button" data-view-model="@deletebox">
+                    </label>
+                    <label class="delete_text">Remove TODO</label>
+                </div>
+
+                <div slot="no-data">{{ @no-todos }}</div>
+            </section>  
+        </section>
+
+        <section class="doing_column">
+            <h2 style="text-align: center;">Doing</h2>
+            <!-- Render each item from the model -->
+            <section class="items" data-for="@doingItems" data-tag="doingItems">
+                <div class="item">
+                    <label class="add">
+                        <input type="button" data-view-model="@checkbox">
+                    </label>
+                    <input type="text" data-view-model="@input">
+                    <label class="delete">
+                        <input type="button" data-view-model="@deletebox">
+                    </label>
+                    <label class="delete_text">Remove DOING</label>
+                </div>
+
+                <div slot="no-data">{{ @no-doings }}</div>
+            </section>  
+        </section>
+
+        <section class="done_column">
+        <h2 style="text-align: center;">Done</h2>
+            <!-- Render each item from the model -->
+            <section class="items" data-for="@doneItems" data-tag="doneItems">
+                <div class="item">
+                    <label class="add">
+                        <input type="button" data-view-model="@checkbox">
+                    </label>
+                    <input type="text" data-view-model="@input">
+                    <label class="delete">
+                        <input type="button" data-view-model="@deletebox">
+                    </label>
+                    <label class="delete_text">Remove DONE</label>
+                </div>
+
+                <div slot="no-data">{{ @no-done }}</div>
+            </section>  
+        </section>
+    </section>
+    <hr>
+
+    <footer>
+        <strong>HINTs:</strong>
+        <ul>
+            <li tabindex="0">Save: Unfocus or press <code>Tab</code>!</li>
+            <li>Edit: double click on TODO!</li>
+        </ul>
+    </footer>
+</webc-container>
