@@ -360,6 +360,8 @@ export default class BoardController extends Controller {
         this.removeListItem(toDoItems[itemIndex]);
         toDoItems.splice(itemIndex, 1);
         
+        console.log(toDoItems)
+        
         this.setItemsClean(toDoItems);
     }
 

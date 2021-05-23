@@ -59,21 +59,21 @@ class BoardManagerService {
     }
     
     // BOARD
-    /*createboard(board, callback) {
-        $$.interaction.startSwarmAs("test/agent/007", "boardSwarm", "createboard", board).onReturn(callback);
+    createBoard(board, callback) {
+        $$.interaction.startSwarmAs("test/agent/007", "itemSwarm", "createBoard", board).onReturn(callback);
     }
 
-    removeboard(boardPath, callback) {
-        $$.interaction.startSwarmAs("test/agent/007", "boardSwarm", "removeboard", boardPath).onReturn(callback);
+    removeBoard(boardPath, callback) {
+        $$.interaction.startSwarmAs("test/agent/007", "itemSwarm", "removeBoard", boardPath).onReturn(callback);
     }
 
-    editboard(board, callback) {
-        $$.interaction.startSwarmAs("test/agent/007", "boardSwarm", "editboard", board).onReturn(callback);
+    editBoard(board, callback) {
+        $$.interaction.startSwarmAs("test/agent/007", "itemSwarm", "editBoard", board).onReturn(callback);
     }
 
-    listboards(callback) {
-        $$.interaction.startSwarmAs("test/agent/007", "boardSwarm", "listboards").onReturn(callback);
-    }*/
+    listBoards(callback) {
+        $$.interaction.startSwarmAs("test/agent/007", "itemSwarm", "listBoards").onReturn(callback);
+    }
 }
 
 let boardManagerService = new BoardManagerService();
