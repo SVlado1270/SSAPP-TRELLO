@@ -33,6 +33,7 @@ export default class BoardController extends Controller {
             if (err) {
                 return console.log(err);
             }
+            console.log(data);
             this.setItemsClean(data);
         });
 

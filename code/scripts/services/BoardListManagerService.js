@@ -9,16 +9,20 @@ class BoardListManagerService {
     }
 
     // BOARD
-    createBoard(board, callback) {
-        $$.interaction.startSwarmAs("test/agent/007", "boardSwarm", "createBoard", board).onReturn(callback);
+    // createBoard(board, callback) {
+    //     $$.interaction.startSwarmAs("test/agent/007", "boardSwarm", "createBoard", board).onReturn(callback);
+    // }
+
+    createBoard(path, boardName, callback) {
+        $$.interaction.startSwarmAs("test/agent/007", "attachDossier", "newDossier", path, boardName).onReturn(callback);
     }
 
-    removeBoard(boardPath, callback) {
-        $$.interaction.startSwarmAs("test/agent/007", "boardSwarm", "removeBoard", boardPath).onReturn(callback);
-    }
+    // removeBoard(boardPath, callback) {
+    //     $$.interaction.startSwarmAs("test/agent/007", "boardSwarm", "removeBoard", boardPath).onReturn(callback);
+    // }
 
-    editBoard(board, callback) {
-        $$.interaction.startSwarmAs("test/agent/007", "boardSwarm", "editBoard", board).onReturn(callback);
+    removeBoard(path, boardName, callback) {
+        $$.interaction.startSwarmAs("test/agent/007", "delete", "dossier", path, boardName).onReturn(callback);
     }
 
     listBoards(callback) {

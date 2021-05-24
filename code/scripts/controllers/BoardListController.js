@@ -44,9 +44,8 @@ export default class BoardsListController extends Controller {
         // Selecting the parent of all the boards and add the event listeners
         const boardsElement = this.getElementByTag('boards');
         if (boardsElement) {
-            boardsElement.addEventListener("focusout", this._blurHandler)
             boardsElement.addEventListener("click", this._changeBoardCheckedState)
-            boardsElement.addEventListener("dblclick", this._doubleClickHandler)
+            boardsElement.addEventListener("click", this._changeDeleteBoardCheckedState)
         }
     }
 
@@ -55,7 +54,35 @@ export default class BoardsListController extends Controller {
             if (err) {
                 console.log(err);
             }
-            callback(undefined, data);
+            console.log(data);
+            var newData = []
+            
+            for(var i=0; i < data.length; i++){     
+                let newTemp = {
+                    checkbox: {
+                        name: 'board-checkbox-' + i,
+                        checked: false
+                    },
+                    deletebox: {
+                        name:'delete-checkbox-' + i,
+                        checked: false
+                    },
+                    input: {
+                        old_value: data[i].path.split('/')[0],
+                        name: 'board-input-' + i,
+                        value: data[i].path.split('/')[0],
+                        readOnly: true,
+                        status: 'board'
+                    },
+                    path: data[i].path,
+                    identifier: data[i].identifier
+                }       
+                newData.push(newTemp)
+            }
+
+            console.log(newData);
+
+            callback(undefined, newData);
         })
     }
 
@@ -68,15 +95,27 @@ export default class BoardsListController extends Controller {
                 name: 'board-checkbox-' + fieldIdentifier,
                 checked: false
             },
+            deletebox: {
+                name:'delete-checkbox-' + fieldIdentifier,
+                checked: false
+            },
             input: {
                 name: 'board-input-' + fieldIdentifier,
                 value: this.model.board.value,
+                old_value: this.model.board.value,
                 readOnly: true,
                 status: 'board'
             }
         };
 
-        this.BoardListManagerService.createBoard(newBoard, (err, data) => {
+
+        this.BoardListManagerService.createBoard("/", "boards", (err, data) => {
+            if (err) {
+                console.log(err);
+            }
+        });
+        
+        this.BoardListManagerService.createBoard("/boards", newBoard.input.value, (err, data) => {
             if (err) {
                 console.log(err);
             }
@@ -106,16 +145,7 @@ export default class BoardsListController extends Controller {
         }
     }
 
-    _blurHandler = (event) => {
-        // Change the readOnly property to true and save the changes of the field
-        let currentBoard = this.changeReadOnlyPropertyFromEventBoard(event, true);
-        this.editListBoard(currentBoard);
-    }
 
-    _doubleClickHandler = (event) => {
-        // Change the readOnly property in false so we can edit the field
-        this.changeReadOnlyPropertyFromEventBoard(event, false);
-    }
 
     changeReadOnlyPropertyFromEventBoard = (event, readOnly) => {
         let elementName = event.target.name;
@@ -135,42 +165,41 @@ export default class BoardsListController extends Controller {
         return boards[boardIndex];
     }
 
-    _changeBoardCheckedState = (event) => {
-        let elementName = event.target.name;
-        // If the element that triggered the event was not a board-checkbox we ignore it
-        if (!elementName || !elementName.includes('board-checkbox')) {
-            return;
-        }
-
-        // Find the wanted element and change the value of the checked property
-        let boards = this.model.boards
-        let boardIndex = boards.findIndex((board) => board.checkbox.name === event.target.name)
-        boards[boardIndex].checkbox = {
-            ...boards[boardIndex].checkbox,
-            checked: !boards[boardIndex].checkbox.checked,
-        }
-        this.setBoardsClean(boards);
-        this.editListBoard(boards[boardIndex]);
-    }
-
     boardIsValid(board) {
         // Check if the board element is valid or not
         return !(!board || !board.input || !board.checkbox || !board.path);
     }
 
-    editListBoard(board) {
+    setBoardsClean = (newBoards) => {
+        // Set the model fresh, without proxies
+        this.model.boards = JSON.parse(JSON.stringify(newBoards))
+    }
+
+    _changeDeleteBoardCheckedState = (event) => {
+        let elementName = event.target.name;
+        // If the element that triggered the event was not a todo-checkbox we ignore it
+        if (!elementName || !elementName.includes('delete-checkbox')) {
+            return;
+        }
+
+        // Find the wanted element and remove it
+        let boards = this.model.boards
+        let itemIndex = boards.findIndex((board) => board.deletebox.name === event.target.name)
+        
+        this.removeBoard(boards[itemIndex]);
+        boards.splice(itemIndex, 1);
+        
+        this.setBoardsClean(boards);
+    }
+
+    removeBoard(board) {
         if(!this.boardIsValid(board)) {
             return;
         }
-        this.BoardListManagerService.editBoard(board, (err, data) => {
+        this.BoardListManagerService.removeBoard("/boards", board.input.value, (err, data) => {
             if (err) {
                 return console.log(err);
             }
         })
-    }
-
-    setBoardsClean = (newBoards) => {
-        // Set the model fresh, without proxies
-        this.model.boards = JSON.parse(JSON.stringify(newBoards))
     }
 }
