@@ -122,3 +122,34 @@
     align-items: center;
     margin: 0;
 }
+
+
+.board-container .boards .board .share {
+    cursor: pointer;
+    background: #41F036;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.board-container .boards .board .share_text {
+    cursor: pointer;
+    background: #9AF894;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.button {
+    background-color: #cfd7f0; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 250px;
+  }

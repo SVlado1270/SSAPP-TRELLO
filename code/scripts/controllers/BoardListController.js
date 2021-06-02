@@ -17,6 +17,13 @@ export default class BoardsListController extends Controller {
                 value: '',
                 placeholder: 'Add board title'
             },
+            importedBoard: {
+                id: 'board',
+                name: 'board',
+                value: '',
+                placeholder: 'Import board',
+                seed: ''
+            },
             'no-data': 'There are no boards'
         };
 
@@ -41,11 +48,17 @@ export default class BoardsListController extends Controller {
             boardCreatorElement.addEventListener("focusout", this._mainInputBlurHandler);
         }
 
+        const boardImportedElement = this.getElementByTag('import-board');
+        if (boardImportedElement) {
+            boardImportedElement.addEventListener("click", this.importBoard);
+        }
+
         // Selecting the parent of all the boards and add the event listeners
         const boardsElement = this.getElementByTag('boards');
         if (boardsElement) {
             boardsElement.addEventListener("click", this._changeBoardCheckedState)
             boardsElement.addEventListener("click", this._changeDeleteBoardCheckedState)
+            boardsElement.addEventListener("click", this._changeShareBoardCheckedState)
         }
     }
 
@@ -56,15 +69,19 @@ export default class BoardsListController extends Controller {
             }
             console.log(data);
             var newData = []
-            
-            for(var i=0; i < data.length; i++){     
+
+            for (var i = 0; i < data.length; i++) {
                 let newTemp = {
                     checkbox: {
                         name: 'board-checkbox-' + i,
                         checked: false
                     },
                     deletebox: {
-                        name:'delete-checkbox-' + i,
+                        name: 'delete-checkbox-' + i,
+                        checked: false
+                    },
+                    sharebox: {
+                        name: 'share-checkbox-' + i,
                         checked: false
                     },
                     input: {
@@ -76,7 +93,7 @@ export default class BoardsListController extends Controller {
                     },
                     path: data[i].path,
                     identifier: data[i].identifier
-                }       
+                }
                 newData.push(newTemp)
             }
 
@@ -96,7 +113,11 @@ export default class BoardsListController extends Controller {
                 checked: false
             },
             deletebox: {
-                name:'delete-checkbox-' + fieldIdentifier,
+                name: 'delete-checkbox-' + fieldIdentifier,
+                checked: false
+            },
+            sharebox: {
+                name: 'share-checkbox-' + fieldIdentifier,
                 checked: false
             },
             input: {
@@ -114,7 +135,7 @@ export default class BoardsListController extends Controller {
                 console.log(err);
             }
         });
-        
+
         this.BoardListManagerService.createBoard("/boards", newBoard.input.value, (err, data) => {
             if (err) {
                 console.log(err);
@@ -145,24 +166,63 @@ export default class BoardsListController extends Controller {
         }
     }
 
+    importBoard = (event) => {
+        let boardName = document.getElementById("importBoard").value;
+        let seed = document.getElementById("importSeed").value;
+
+        if (!this.stringIsBlank(boardName) && !this.stringIsBlank(seed))
+        {
+            console.log(boardName + " " + seed)
+
+            let fieldIdentifier = this.model.boards.length + 1;
+
+        let newBoard = {
+            checkbox: {
+                name: 'board-checkbox-' + fieldIdentifier,
+                checked: false
+            },
+            deletebox: {
+                name: 'delete-checkbox-' + fieldIdentifier,
+                checked: false
+            },
+            sharebox: {
+                name: 'share-checkbox-' + fieldIdentifier,
+                checked: false
+            },
+            input: {
+                name: 'board-input-' + fieldIdentifier,
+                value: boardName,
+                old_value: boardName,
+                readOnly: true,
+                status: 'board'
+            }
+        };
 
 
-    changeReadOnlyPropertyFromEventBoard = (event, readOnly) => {
-        let elementName = event.target.name;
-        // If the element that triggered the event was not a board-input we ignore it
-        if (!elementName || !elementName.includes('board-input')) {
-            return;
+        this.BoardListManagerService.createBoard("/", "boards", (err, data) => {
+            if (err) {
+                console.log(err);
+            }
+        });
+
+        this.BoardListManagerService.importBoard("/boards", newBoard.input.value, seed, (err, data) => {
+            if (err) {
+                console.log(err);
+            }
+
+            // Bring the path and the seed to the newBoard object
+            newBoard = {
+                ...newBoard,
+                ...data
+            };
+
+            // Appended to the "boards" array
+            this.model.boards.push(newBoard);
+
+            document.getElementById("importBoard").value = "";
+            document.getElementById("importSeed").value = "";
+        });
         }
-
-        // Find the wanted element and change the value of the read-only property
-        let boards = this.model.boards
-        let boardIndex = boards.findIndex((board) => board.input.name === elementName)
-        boards[boardIndex].input = {
-            ...boards[boardIndex].input,
-            readOnly: readOnly
-        }
-        this.setBoardsClean(boards);
-        return boards[boardIndex];
     }
 
     boardIsValid(board) {
@@ -173,6 +233,7 @@ export default class BoardsListController extends Controller {
     setBoardsClean = (newBoards) => {
         // Set the model fresh, without proxies
         this.model.boards = JSON.parse(JSON.stringify(newBoards))
+
     }
 
     _changeDeleteBoardCheckedState = (event) => {
@@ -185,15 +246,15 @@ export default class BoardsListController extends Controller {
         // Find the wanted element and remove it
         let boards = this.model.boards
         let itemIndex = boards.findIndex((board) => board.deletebox.name === event.target.name)
-        
+
         this.removeBoard(boards[itemIndex]);
         boards.splice(itemIndex, 1);
-        
+
         this.setBoardsClean(boards);
     }
 
     removeBoard(board) {
-        if(!this.boardIsValid(board)) {
+        if (!this.boardIsValid(board)) {
             return;
         }
         this.BoardListManagerService.removeBoard("/boards", board.input.value, (err, data) => {
@@ -201,5 +262,44 @@ export default class BoardsListController extends Controller {
                 return console.log(err);
             }
         })
+    }
+
+    shareBoard(board) {
+        if (!this.boardIsValid(board)) {
+            return;
+        }
+        this.BoardListManagerService.shareBoard("/boards", board.input.value, (err, data) => {
+            if (err) {
+                return console.log(err);
+            }
+            return data;
+        })
+    }
+
+
+    _changeShareBoardCheckedState = (event) => {
+        let elementName = event.target.name;
+        // If the element that triggered the event was not a todo-checkbox we ignore it
+        if (!elementName || !elementName.includes('share-checkbox')) {
+            return;
+        }
+
+        // Find the wanted element and remove it
+        let boards = this.model.boards
+        let itemIndex = boards.findIndex((board) => board.sharebox.name === event.target.name)
+
+        console.log(boards)
+
+        this.BoardListManagerService.shareBoard("/boards", boards[itemIndex].input.value, (err, data) => {
+            if (err) {
+                return console.log(err);
+            }
+            console.log(data);
+            // boards[itemIndex].input.value = data;
+            window.prompt(`Share this SEED and use it to import the board ${boards[itemIndex].input.value}:`, data)
+            return data;
+        })
+
+        this.setBoardsClean(boards);
     }
 }

@@ -588,8 +588,9 @@ $$.swarms.describe("attachDossier", {
                     console.error(err);
                     return this.return(err);
                 }
-
+                
                 this.mountDossier(path, SEED, dossierName);
+                console.log("AM IMPORTAT BOARD LA " + path + " " + dossierName)
             });
         }
 
@@ -730,7 +731,7 @@ $$.swarms.describe('listDossiers', {
                 if (!dossier) {
                     return this.return(new Error(`Dossier with the name ${dossierName} was not found in the mounted points!`));
                 }
-
+                
                 this.return(undefined, dossier.identifier);
             });
         }

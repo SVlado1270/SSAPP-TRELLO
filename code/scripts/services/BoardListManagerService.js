@@ -17,12 +17,16 @@ class BoardListManagerService {
         $$.interaction.startSwarmAs("test/agent/007", "attachDossier", "newDossier", path, boardName).onReturn(callback);
     }
 
-    // removeBoard(boardPath, callback) {
-    //     $$.interaction.startSwarmAs("test/agent/007", "boardSwarm", "removeBoard", boardPath).onReturn(callback);
-    // }
+    importBoard(path, boardName, seed, callback) {
+        $$.interaction.startSwarmAs("test/agent/007", "attachDossier", "fromSeed", path, boardName, seed).onReturn(callback);
+    }
 
     removeBoard(path, boardName, callback) {
         $$.interaction.startSwarmAs("test/agent/007", "delete", "dossier", path, boardName).onReturn(callback);
+    }
+
+    shareBoard(path, boardName, callback) {
+        $$.interaction.startSwarmAs("test/agent/007", "listDossiers", "printSeed", path, boardName).onReturn(callback);
     }
 
     listBoards(callback) {

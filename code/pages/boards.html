@@ -12,7 +12,7 @@
         <input data-view-model="@board" data-tag="create-board">
     </section>
 
-        <!-- Render each item from the model -->
+    <!-- Render each item from the model -->
     <section class="boards" data-for="@boards" data-tag="boards">
         <div class="board">
             <label class="add">
@@ -23,18 +23,33 @@
                 <input type="button" data-view-model="@deletebox">
             </label>
             <label class="delete_text">Remove BOARD</label>
+            <label class="share">
+                <input type="button" data-view-model="@sharebox">
+            </label>
+            <label class="share_text">Share BOARD</label>
         </div>
 
         <div slot="no-data">{{ @no-boards }}</div>
-    </section>  
+    </section>
 
     <hr>
+
+    <section>
+        <label for="@importedBoard.id">Create new board:</label>
+        <psk-grid columns="2" layout="l=[4,4]">
+            <input id="importBoard" for="@importedBoard.value" placeholder="Board Name">
+            <input id="importSeed" for="@importedBoard.seed" placeholder="Paste your seed (Board keySSI) here">
+        </psk-grid>
+    </section>
+
+    <input type="button" class="button" data-tag="import-board" value="IMPORT BOARD"></button>
 
     <footer>
         <strong>HINTs:</strong>
         <ul>
             <li tabindex="0">Save: Unfocus or press <code>Tab</code>!</li>
-            <li>Edit: double click on TODO!</li>
         </ul>
     </footer>
+
+
 </webc-container>
