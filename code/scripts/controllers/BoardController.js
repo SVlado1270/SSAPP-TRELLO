@@ -1,5 +1,10 @@
 import { getBoardManagerServiceInstance } from "../services/BoardManagerService.js";
-
+let boardName = "BoardBoard3"
+const types = {
+    TODO: "todos",
+    DOING: "doings",
+    DONE: "done"
+}
 
 const { Controller } = WebCardinal.controllers;
 
@@ -92,7 +97,13 @@ export default class BoardController extends Controller {
     }
 
     populateItemList(callback) {
-        this.BoardManagerService.listToDos((err, data) => {
+        // this.BoardManagerService.listToDos((err, data) => {
+        //     if (err) {
+        //         console.log(err);
+        //     }
+        //     callback(undefined, data);
+        // })
+        this.BoardManagerService.listTasks(types.TODO, boardName, (err, data) => {
             if (err) {
                 console.log(err);
             }
@@ -101,7 +112,7 @@ export default class BoardController extends Controller {
     }
 
     populateDoingItemList(callback) {
-        this.BoardManagerService.listDoings((err, data) => {
+        this.BoardManagerService.listTasks(types.DOING, boardName, (err, data) => {
             if (err) {
                 console.log(err);
             }
@@ -110,7 +121,7 @@ export default class BoardController extends Controller {
     }
 
     populateDoneItemList(callback) {
-        this.BoardManagerService.listDone((err, data) => {
+        this.BoardManagerService.listTasks(types.DONE, boardName, (err, data) => {
             if (err) {
                 console.log(err);
             }
@@ -140,7 +151,7 @@ export default class BoardController extends Controller {
             }
         };
 
-        this.BoardManagerService.createToDo(newItem, (err, data) => {
+        this.BoardManagerService.createTask(newItem, types.TODO, boardName, (err, data) => {
             if (err) {
                 console.log(err);
             }
@@ -160,7 +171,7 @@ export default class BoardController extends Controller {
     }
 
     _addNewDoingListItem(newItem) {
-        this.BoardManagerService.createDoing(newItem, (err, data) => {
+        this.BoardManagerService.createTask(newItem, types.DOING, boardName, (err, data) => {
             if (err) {
                 console.log(err);
             }
@@ -169,7 +180,7 @@ export default class BoardController extends Controller {
     }
 
     _addNewDoneListItem(newItem) {
-        this.BoardManagerService.createDone(newItem, (err, data) => {
+        this.BoardManagerService.createTask(newItem, types.DONE, boardName, (err, data) => {
             if (err) {
                 console.log(err);
             }
@@ -409,7 +420,7 @@ export default class BoardController extends Controller {
         if(!this.itemIsValid(todo)) {
             return;
         }
-        this.BoardManagerService.editToDo(todo, (err, data) => {
+        this.BoardManagerService.editTask(todo, types.TODO, boardName, (err, data) => {
             if (err) {
                 return console.log(err);
             }
@@ -420,7 +431,7 @@ export default class BoardController extends Controller {
         if(!this.itemIsValid(doing)) {
             return;
         }
-        this.BoardManagerService.editDoing(doing, (err, data) => {
+        this.BoardManagerService.editTask(doing, types.DOING, boardName, (err, data) => {
             if (err) {
                 return console.log(err);
             }
@@ -431,7 +442,7 @@ export default class BoardController extends Controller {
         if(!this.itemIsValid(done)) {
             return;
         }
-        this.BoardManagerService.editDone(done, (err, data) => {
+        this.BoardManagerService.editTask(done, types.DONE, boardName, (err, data) => {
             if (err) {
                 return console.log(err);
             }
@@ -442,10 +453,11 @@ export default class BoardController extends Controller {
         if(!this.itemIsValid(todo)) {
             return;
         }
-        this.BoardManagerService.removeToDo(todo.path, (err, data) => {
+        this.BoardManagerService.removeTask(todo.path, (err, data) => {
             if (err) {
                 return console.log(err);
             }
+            console.log(data)
         })
     }
 
@@ -453,7 +465,7 @@ export default class BoardController extends Controller {
         if(!this.itemIsValid(doing)) {
             return;
         }
-        this.BoardManagerService.removeDoing(doing.path, (err, data) => {
+        this.BoardManagerService.removeTask(doing.path, (err, data) => {
             if (err) {
                 return console.log(err);
             }
@@ -464,7 +476,7 @@ export default class BoardController extends Controller {
         if(!this.itemIsValid(done)) {
             return;
         }
-        this.BoardManagerService.removeDone(done.path, (err, data) => {
+        this.BoardManagerService.removeTask(done.path, (err, data) => {
             if (err) {
                 return console.log(err);
             }

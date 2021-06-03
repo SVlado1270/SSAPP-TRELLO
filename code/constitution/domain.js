@@ -1,15 +1,18 @@
 domainRequire=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({"./../../domain":[function(require,module,exports){
 const commons = require('./commons');
 console.log("Loaded from domain.js");
-const BOARD_NAME = "/TEST_BOARD3"
-BOARDS_MOUNTING_DIR = "/boards"
+const BOARD_NAME = "Board1"
+const BOARDS_MOUNTING_DIR = "/boards"
 const BOARD_MOUNTING_PATH = `/boards/${BOARD_NAME}`
-const TODO_MOUNTING_PATH = `${BOARD_NAME}/todos`;
+const TODO_MOUNTING_PATH = `/boards/${BOARD_NAME}/todos`;
 const DOING_MOUNTING_PATH = `${BOARD_NAME}/doings`;
 const DONE_MOUNTING_PATH = `${BOARD_NAME}/done`;
 const openDSU = require("opendsu");
 const keyssiresolver = openDSU.loadApi("resolver");
 const securityContext = openDSU.loadApi("sc");
+const keyssiSpace = require("opendsu").loadApi("keyssi");
+
+
 let mainDSU;
 
 //TODO -> BOARD/TODOS /item1
@@ -418,6 +421,163 @@ $$.swarms.describe('itemSwarm', {
 });
 
 
+$$.swarms.describe('taskSwarm', {
+
+    createTask: function (data, type, boardName) {
+        // type = todos / doings / done aka path
+        this.__initMainDSU();
+        const keyssiSpace = openDSU.loadApi("keyssi");
+        mainDSU.getKeySSI((err, ssi) => {
+            if (err) {
+                console.error(err);
+                return this.return(err);
+            }
+            const templateSSI = keyssiSpace.buildTemplateSeedSSI(keyssiSpace.parse(ssi).getDLDomain());
+            keyssiresolver.createDSU(templateSSI, (err, newDossier) => {
+                if (err) {
+                    console.error(err);
+                    return this.return(err);
+                }
+                newDossier.writeFile('/data', JSON.stringify(data), (err, digest) => {
+                    if (err) {
+                        console.error(err);
+                        return this.return(err);
+                    }
+                    newDossier.getKeySSI((err, keySSI) => {
+                        if (err) {
+                            return this.return(err);
+                        }
+                        this.mountDossier(mainDSU, `${BOARDS_MOUNTING_DIR}/${boardName}/${type}`, keySSI)
+                    });
+                });
+            });
+        });
+    },
+
+    listTasks: function (type, boardName) {
+        this.__initMainDSU();
+        this.__listTasks(type, boardName, (err, data) => {
+            if (err) {
+                return this.return(err);
+            }
+            this.return(err, data);
+        });
+    },
+
+    __listTasks: function (type, boardName, callback) {
+        mainDSU.readDir(`${BOARDS_MOUNTING_DIR}/${boardName}/${type}`, (err, applications) => {
+            if (err) {
+                return callback(err);
+            }
+
+            let toBeReturned = [];
+
+            let getTasks = (task) => {
+                let appPath = `${BOARDS_MOUNTING_DIR}/${boardName}/${type}` + '/' + task.path;
+
+
+                mainDSU.readFile(appPath + '/data', (err, fileContent) => {
+                    toBeReturned.push({
+                        ...JSON.parse(fileContent),
+                        path: appPath,
+                        identifier: task.identifier
+                    });
+                    if (applications.length > 0) {
+                        getTasks(applications.shift())
+                    } else {
+                        return callback(undefined, toBeReturned);
+                    }
+                });
+            };
+            if (applications.length > 0) {
+                return getTasks(applications.shift());
+            }
+            return callback(undefined, toBeReturned);
+        })
+    },
+
+    editTask: function (editedTask, type, boardName) {
+        this.__initMainDSU();
+        this.__listTasks(type, boardName, (err, tasks) => {
+            if (err) {
+                return this.return(err);
+            }
+            let wantedTask = tasks.find(task => task.path === editedTask.path);
+            if (!wantedTask) {
+                return this.return(new Error('Task with path ' + editedTask.path + ' not found.'));
+            }
+
+            keyssiresolver.loadDSU(wantedTask.identifier, (err, typeDossier) => {
+                if (err) {
+                    return this.return(err);
+                }
+                typeDossier.writeFile('/data', JSON.stringify(editedTask), this.return);
+            })
+        });
+    },
+
+    removeTask: function(applicationPath) {
+        let splitPath = applicationPath.split('/');
+        let name = splitPath.pop();
+        let path =  splitPath.join('/');
+
+        if (rawDossier) {
+            return commons.getParentDossier(rawDossier, path, (err, parentKeySSI, relativePath) => {
+                if (err) {
+                    console.error(err);
+                    return this.return(err);
+                }
+
+                keyssiresolver.loadDSU(parentKeySSI, (err, parentDSU) => {
+                    if (err) {
+                        console.error(err);
+                        return this.return(err);
+                    }
+
+                    const unmountPath = `${path.replace(relativePath, '')}/${name}`;
+                    parentDSU.unmount(unmountPath, (err, result) => {
+                        if (err) {
+                            console.error(err);
+                            return this.return(err);
+                        }
+
+                        this.return(undefined, {
+                            success: true,
+                            path: path,
+                            unmountPath: unmountPath,
+                            result: result
+                        });
+                    });
+                });
+            });
+        }
+
+        this.return(new Error("Raw Dossier is not available."))
+    },
+
+    mountDossier: function (parentDossier, mountingPath, seed) {
+        const PskCrypto = require("pskcrypto");
+        const hexDigest = PskCrypto.pskHash(seed, "hex");
+        let path = `${mountingPath}/${hexDigest}`;
+        parentDossier.mount(path, seed, (err) => {
+            if (err) {
+                console.error(err);
+                return this.return(err);
+            }
+            this.return(undefined, {path: path, seed: seed});
+        });
+    },
+
+    __initMainDSU: function () {
+        try {
+            mainDSU = securityContext.getMainDSU();
+        } catch (err) {
+            return this.return(err);
+        }
+    }
+});
+
+
 $$.swarms.describe('boardSwarm', {
     start: function (data) {
         this.__initMainDSU();
@@ -557,7 +717,6 @@ $$.swarms.describe('boardSwarm', {
 $$.swarms.describe("attachDossier", {
     newDossier: function(path, dossierName) {
         if (rawDossier) {
-            const keyssiSpace = require("opendsu").loadApi("keyssi");
             rawDossier.getKeySSIAsString((err, ssi) => {
                 if (err) {
                     return this.return(err);

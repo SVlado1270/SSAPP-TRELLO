@@ -8,6 +8,25 @@ class BoardManagerService {
         this.DSUStorage = new DSUStorage();
     }
 
+    createTask(task, type, boardName, callback) {
+        $$.interaction.startSwarmAs("test/agent/007", "taskSwarm", "createTask", task, type, boardName).onReturn(callback);
+    }
+
+    removeTask(applicationPath, callback) {
+        $$.interaction.startSwarmAs("test/agent/007", "taskSwarm", "removeTask", applicationPath).onReturn(callback);
+    }
+
+    editTask(task, type, boardName, callback) {
+        $$.interaction.startSwarmAs("test/agent/007", "taskSwarm", "editTask", task, type, boardName).onReturn(callback);
+    }
+
+    listTasks(type, boardName, callback) {
+        $$.interaction.startSwarmAs("test/agent/007", "taskSwarm", "listTasks", type, boardName).onReturn(callback);
+    }
+
+
+
+
     createToDo(todo, callback) {
         $$.interaction.startSwarmAs("test/agent/007", "itemSwarm", "createToDo", todo).onReturn(callback);
     }
