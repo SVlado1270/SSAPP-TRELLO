@@ -39,6 +39,6 @@ let getBoardListManagerServiceInstance = function () {
     return boardListManagerService;
 }
 
-export {
+export {    
     getBoardListManagerServiceInstance
 };

@@ -1,10 +1,12 @@
 import { getBoardManagerServiceInstance } from "../services/BoardManagerService.js";
-let boardName = "BoardBoard3"
+let boardName = "BoardBoard3";
 const types = {
     TODO: "todos",
     DOING: "doings",
     DONE: "done"
-}
+};
+
+// COD DUPLICAT AF -> MAKE IT WORK THEN MAKE IT PRETTY
 
 const { Controller } = WebCardinal.controllers;
 
@@ -13,7 +15,6 @@ export default class BoardController extends Controller {
         super(...props);
 
         this.BoardManagerService = getBoardManagerServiceInstance();
-
 
         this.model = {
             toDoItems: [],
@@ -71,10 +72,10 @@ export default class BoardController extends Controller {
         // Selecting the parent of all the toDoItems and add the event listeners
         const itemsElement = this.getElementByTag('toDoItems');
         if (itemsElement) {
-            itemsElement.addEventListener("focusout", this._blurHandler)
-            itemsElement.addEventListener("click", this._changeToDoCheckedState)
-            itemsElement.addEventListener("click", this._changeDeleteToDoCheckedState)
-            itemsElement.addEventListener("dblclick", this._doubleClickHandler)
+            itemsElement.addEventListener("focusout", this._blurHandler);
+            itemsElement.addEventListener("click", this._changeToDoCheckedState);
+            itemsElement.addEventListener("click", this._changeDeleteToDoCheckedState);
+            itemsElement.addEventListener("dblclick", this._doubleClickHandler);
         }
 
         // Selecting the parent of all the doingItems and add the event listeners
@@ -89,10 +90,10 @@ export default class BoardController extends Controller {
          // Selecting the parent of all the doneItems and add the event listeners
         const doneItemsElement = this.getElementByTag('doneItems');
         if (doneItemsElement) {
-            doneItemsElement.addEventListener("focusout", this._blurHandlerDone)
-            doneItemsElement.addEventListener("click", this._changeDoneCheckedState)
-            doneItemsElement.addEventListener("click", this._changeDeleteDoneCheckedState)
-            doneItemsElement.addEventListener("dblclick", this._doubleClickHandlerDone)
+            doneItemsElement.addEventListener("focusout", this._blurHandlerDone);
+            doneItemsElement.addEventListener("click", this._changeDoneCheckedState);
+            doneItemsElement.addEventListener("click", this._changeDeleteDoneCheckedState);
+            doneItemsElement.addEventListener("dblclick", this._doubleClickHandlerDone);
         }
     }
 
@@ -108,7 +109,7 @@ export default class BoardController extends Controller {
                 console.log(err);
             }
             callback(undefined, data);
-        })
+        });
     }
 
     populateDoingItemList(callback) {
@@ -117,7 +118,7 @@ export default class BoardController extends Controller {
                 console.log(err);
             }
             callback(undefined, data);
-        })
+        });
     }
 
     populateDoneItemList(callback) {
@@ -126,7 +127,7 @@ export default class BoardController extends Controller {
                 console.log(err);
             }
             callback(undefined, data);
-        })
+        });
     }
 
 
@@ -249,12 +250,12 @@ export default class BoardController extends Controller {
         }
 
         // Find the wanted element and change the value of the read-only property
-        let toDoItems = this.model.toDoItems
-        let itemIndex = toDoItems.findIndex((todo) => todo.input.name === elementName)
+        let toDoItems = this.model.toDoItems;
+        let itemIndex = toDoItems.findIndex((todo) => todo.input.name === elementName);
         toDoItems[itemIndex].input = {
             ...toDoItems[itemIndex].input,
             readOnly: readOnly
-        }
+        };
         this.setItemsClean(toDoItems);
         return toDoItems[itemIndex];
     }
@@ -267,12 +268,12 @@ export default class BoardController extends Controller {
         }
 
         // Find the wanted element and change the value of the read-only property
-        let doingItems = this.model.doingItems
-        let itemIndex = doingItems.findIndex((doing) => doing.input.name === elementName)
+        let doingItems = this.model.doingItems;
+        let itemIndex = doingItems.findIndex((doing) => doing.input.name === elementName);
         doingItems[itemIndex].input = {
             ...doingItems[itemIndex].input,
             readOnly: readOnly
-        }
+        };
         this.setDoingItemsClean(doingItems);
         return doingItems[itemIndex];
     }
@@ -285,12 +286,12 @@ export default class BoardController extends Controller {
         }
 
         // Find the wanted element and change the value of the read-only property
-        let doneItems = this.model.doneItems
-        let itemIndex = doneItems.findIndex((done) => done.input.name === elementName)
+        let doneItems = this.model.doneItems;
+        let itemIndex = doneItems.findIndex((done) => done.input.name === elementName);
         doneItems[itemIndex].input = {
             ...doneItems[itemIndex].input,
             readOnly: readOnly
-        }
+        };
         this.setDoneItemsClean(doneItems);
         return doneItems[itemIndex];
     }
@@ -303,12 +304,12 @@ export default class BoardController extends Controller {
         }
 
         // Find the wanted element and change the value of the checked property
-        let toDoItems = this.model.toDoItems
-        let itemIndex = toDoItems.findIndex((todo) => todo.checkbox.name === event.target.name)
+        let toDoItems = this.model.toDoItems;
+        let itemIndex = toDoItems.findIndex((todo) => todo.checkbox.name === event.target.name);
 
         //MOVE TO DOING (ADD IN DOING + REMOVE FROM TODO) + UPDATE
         this._addNewDoingListItem(toDoItems[itemIndex]);
-        let doingItems = this.model.doingItems
+        let doingItems = this.model.doingItems;
 
 
         this.removeListItem(toDoItems[itemIndex]);
@@ -327,12 +328,12 @@ export default class BoardController extends Controller {
             }
     
             // Find the wanted element and change the value of the checked property
-            let doingItems = this.model.doingItems
-            let itemIndex = doingItems.findIndex((doing) => doing.checkbox.name === event.target.name)
+            let doingItems = this.model.doingItems;
+            let itemIndex = doingItems.findIndex((doing) => doing.checkbox.name === event.target.name);
     
             //MOVE TO DONE (ADD IN DONE + REMOVE FROM DOING) + UPDATE
             this._addNewDoneListItem(doingItems[itemIndex]);
-            let doneItems = this.model.doneItems
+            let doneItems = this.model.doneItems;
     
     
             this.removeDoingListItem(doingItems[itemIndex]);
@@ -351,8 +352,8 @@ export default class BoardController extends Controller {
         }
 
         // Find the wanted element and change the value of the checked property
-        let doneItems = this.model.doneItems
-        let itemIndex = doneItems.findIndex((done) => done.checkbox.name === event.target.name)
+        let doneItems = this.model.doneItems;
+        let itemIndex = doneItems.findIndex((done) => done.checkbox.name === event.target.name);
 
         this.setDoneItemsClean(doneItems);
         this.editDoneListItem(doneItems[itemIndex]);
@@ -366,13 +367,13 @@ export default class BoardController extends Controller {
         }
 
         // Find the wanted element and remove it
-        let toDoItems = this.model.toDoItems
-        let itemIndex = toDoItems.findIndex((todo) => todo.deletebox.name === event.target.name)
+        let toDoItems = this.model.toDoItems;
+        let itemIndex = toDoItems.findIndex((todo) => todo.deletebox.name === event.target.name);
         
         this.removeListItem(toDoItems[itemIndex]);
         toDoItems.splice(itemIndex, 1);
         
-        console.log(toDoItems)
+        console.log(toDoItems);
         
         this.setItemsClean(toDoItems);
     }
@@ -385,8 +386,8 @@ export default class BoardController extends Controller {
         }
 
         // Find the wanted element and remove it
-        let doingItems = this.model.doingItems
-        let itemIndex = doingItems.findIndex((doing) => doing.deletebox.name === event.target.name)
+        let doingItems = this.model.doingItems;
+        let itemIndex = doingItems.findIndex((doing) => doing.deletebox.name === event.target.name);
         
         this.removeDoingListItem(doingItems[itemIndex]);
         doingItems.splice(itemIndex, 1);
@@ -402,8 +403,8 @@ export default class BoardController extends Controller {
         }
 
         // Find the wanted element and remove it
-        let doneItems = this.model.doneItems
-        let itemIndex = doneItems.findIndex((done) => done.deletebox.name === event.target.name)
+        let doneItems = this.model.doneItems;
+        let itemIndex = doneItems.findIndex((done) => done.deletebox.name === event.target.name);
         
         this.removeDoneListItem(doneItems[itemIndex]);
         doneItems.splice(itemIndex, 1);
@@ -424,7 +425,7 @@ export default class BoardController extends Controller {
             if (err) {
                 return console.log(err);
             }
-        })
+        });
     }
 
     editDoingListItem(doing) {
@@ -435,7 +436,7 @@ export default class BoardController extends Controller {
             if (err) {
                 return console.log(err);
             }
-        })
+        });
     }
 
     editDoneListItem(done) {
@@ -446,7 +447,7 @@ export default class BoardController extends Controller {
             if (err) {
                 return console.log(err);
             }
-        })
+        });
     }
 
     removeListItem(todo) {
@@ -458,7 +459,7 @@ export default class BoardController extends Controller {
                 return console.log(err);
             }
             console.log(data)
-        })
+        });
     }
 
     removeDoingListItem(doing) {
@@ -469,7 +470,7 @@ export default class BoardController extends Controller {
             if (err) {
                 return console.log(err);
             }
-        })
+        });
     }
 
     removeDoneListItem(done) {
@@ -480,21 +481,21 @@ export default class BoardController extends Controller {
             if (err) {
                 return console.log(err);
             }
-        })
+        });
     }
 
     setItemsClean = (newItems) => {
         // Set the model fresh, without proxies
-        this.model.toDoItems = JSON.parse(JSON.stringify(newItems))
-        console.log(newItems)
+        this.model.toDoItems = JSON.parse(JSON.stringify(newItems));
+        console.log(newItems);
     }
 
     setDoingItemsClean = (newItems) => {
-        this.model.doingItems = JSON.parse(JSON.stringify(newItems))
+        this.model.doingItems = JSON.parse(JSON.stringify(newItems));
     }
 
     setDoneItemsClean = (newItems) => {
-        this.model.doneItems = JSON.parse(JSON.stringify(newItems))
+        this.model.doneItems = JSON.parse(JSON.stringify(newItems));
     }
 
 }

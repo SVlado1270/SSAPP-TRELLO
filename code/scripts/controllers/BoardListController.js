@@ -56,9 +56,9 @@ export default class BoardsListController extends Controller {
         // Selecting the parent of all the boards and add the event listeners
         const boardsElement = this.getElementByTag('boards');
         if (boardsElement) {
-            boardsElement.addEventListener("click", this._changeBoardCheckedState)
-            boardsElement.addEventListener("click", this._changeDeleteBoardCheckedState)
-            boardsElement.addEventListener("click", this._changeShareBoardCheckedState)
+            // boardsElement.addEventListener("click", this._changeBoardCheckedState)
+            boardsElement.addEventListener("click", this._changeDeleteBoardCheckedState);
+            boardsElement.addEventListener("click", this._changeShareBoardCheckedState);
         }
     }
 
@@ -68,7 +68,7 @@ export default class BoardsListController extends Controller {
                 console.log(err);
             }
             console.log(data);
-            var newData = []
+            var newData = [];
 
             for (var i = 0; i < data.length; i++) {
                 let newTemp = {
@@ -94,13 +94,13 @@ export default class BoardsListController extends Controller {
                     path: data[i].path,
                     identifier: data[i].identifier
                 }
-                newData.push(newTemp)
+                newData.push(newTemp);
             }
 
             console.log(newData);
 
             callback(undefined, newData);
-        })
+        });
     }
 
     _addNewListBoard() {
@@ -167,61 +167,64 @@ export default class BoardsListController extends Controller {
     }
 
     importBoard = (event) => {
+
+        // TEST REDIRECT STUFF WITH THE IMPORT BUTTON
+        this.history.push('/home', {});
+
         let boardName = document.getElementById("importBoard").value;
         let seed = document.getElementById("importSeed").value;
 
-        if (!this.stringIsBlank(boardName) && !this.stringIsBlank(seed))
-        {
-            console.log(boardName + " " + seed)
+        if (!this.stringIsBlank(boardName) && !this.stringIsBlank(seed)) {
+            console.log(boardName + " " + seed);
 
             let fieldIdentifier = this.model.boards.length + 1;
 
-        let newBoard = {
-            checkbox: {
-                name: 'board-checkbox-' + fieldIdentifier,
-                checked: false
-            },
-            deletebox: {
-                name: 'delete-checkbox-' + fieldIdentifier,
-                checked: false
-            },
-            sharebox: {
-                name: 'share-checkbox-' + fieldIdentifier,
-                checked: false
-            },
-            input: {
-                name: 'board-input-' + fieldIdentifier,
-                value: boardName,
-                old_value: boardName,
-                readOnly: true,
-                status: 'board'
-            }
-        };
-
-
-        this.BoardListManagerService.createBoard("/", "boards", (err, data) => {
-            if (err) {
-                console.log(err);
-            }
-        });
-
-        this.BoardListManagerService.importBoard("/boards", newBoard.input.value, seed, (err, data) => {
-            if (err) {
-                console.log(err);
-            }
-
-            // Bring the path and the seed to the newBoard object
-            newBoard = {
-                ...newBoard,
-                ...data
+            let newBoard = {
+                checkbox: {
+                    name: 'board-checkbox-' + fieldIdentifier,
+                    checked: false
+                },
+                deletebox: {
+                    name: 'delete-checkbox-' + fieldIdentifier,
+                    checked: false
+                },
+                sharebox: {
+                    name: 'share-checkbox-' + fieldIdentifier,
+                    checked: false
+                },
+                input: {
+                    name: 'board-input-' + fieldIdentifier,
+                    value: boardName,
+                    old_value: boardName,
+                    readOnly: true,
+                    status: 'board'
+                }
             };
 
-            // Appended to the "boards" array
-            this.model.boards.push(newBoard);
 
-            document.getElementById("importBoard").value = "";
-            document.getElementById("importSeed").value = "";
-        });
+            this.BoardListManagerService.createBoard("/", "boards", (err, data) => {
+                if (err) {
+                    console.log(err);
+                }
+            });
+
+            this.BoardListManagerService.importBoard("/boards", newBoard.input.value, seed, (err, data) => {
+                if (err) {
+                    console.log(err);
+                }
+
+                // Bring the path and the seed to the newBoard object
+                newBoard = {
+                    ...newBoard,
+                    ...data
+                };
+
+                // Appended to the "boards" array
+                this.model.boards.push(newBoard);
+
+                document.getElementById("importBoard").value = "";
+                document.getElementById("importSeed").value = "";
+            });
         }
     }
 
@@ -232,7 +235,7 @@ export default class BoardsListController extends Controller {
 
     setBoardsClean = (newBoards) => {
         // Set the model fresh, without proxies
-        this.model.boards = JSON.parse(JSON.stringify(newBoards))
+        this.model.boards = JSON.parse(JSON.stringify(newBoards));
 
     }
 
@@ -244,8 +247,8 @@ export default class BoardsListController extends Controller {
         }
 
         // Find the wanted element and remove it
-        let boards = this.model.boards
-        let itemIndex = boards.findIndex((board) => board.deletebox.name === event.target.name)
+        let boards = this.model.boards;
+        let itemIndex = boards.findIndex((board) => board.deletebox.name === event.target.name);
 
         this.removeBoard(boards[itemIndex]);
         boards.splice(itemIndex, 1);
@@ -261,10 +264,11 @@ export default class BoardsListController extends Controller {
             if (err) {
                 return console.log(err);
             }
-        })
+        });
     }
 
     shareBoard(board) {
+
         if (!this.boardIsValid(board)) {
             return;
         }
@@ -273,7 +277,7 @@ export default class BoardsListController extends Controller {
                 return console.log(err);
             }
             return data;
-        })
+        });
     }
 
 
@@ -285,10 +289,10 @@ export default class BoardsListController extends Controller {
         }
 
         // Find the wanted element and remove it
-        let boards = this.model.boards
-        let itemIndex = boards.findIndex((board) => board.sharebox.name === event.target.name)
+        let boards = this.model.boards;
+        let itemIndex = boards.findIndex((board) => board.sharebox.name === event.target.name);
 
-        console.log(boards)
+        console.log(boards);
 
         this.BoardListManagerService.shareBoard("/boards", boards[itemIndex].input.value, (err, data) => {
             if (err) {
@@ -296,7 +300,7 @@ export default class BoardsListController extends Controller {
             }
             console.log(data);
             // boards[itemIndex].input.value = data;
-            window.prompt(`Share this SEED and use it to import the board ${boards[itemIndex].input.value}:`, data)
+            window.prompt(`Share this SEED and use it to import the board ${boards[itemIndex].input.value}:`, data);
             return data;
         })
 
